@@ -1,250 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZenPad Pro - Ultra Notepad</title>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-    <style>
-        :root {
-            --bg: #121212;
-            --card-text: #ffffff;
-            --primary: #bb86fc;
-        }
-        body {
-            margin: 0; font-family: 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg); color: white; overflow-x: hidden;
-        }
-        /* Dashboard Styles */
-        #dashboard { padding: 20px; transition: 0.3s; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .search-bar { width: 100%; padding: 12px; border-radius: 25px; border: none; background: #222; color: white; margin-bottom: 20px; }
-        
-        .notes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
-        .note-card {
-            height: 150px; border-radius: 15px; padding: 15px;
-            color: var(--card-text); cursor: pointer; position: relative;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.2s;
-            display: flex; flex-direction: column; justify-content: space-between;
-        }
-        .note-card:active { transform: scale(0.95); }
-        .note-card h3 { margin: 0; font-size: 1.1rem; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
-        .note-date { font-size: 0.7rem; opacity: 0.8; }
-
-        /* Editor Styles */
-        #editor {
-            position: fixed; top: 0; left: 100%; width: 100%; height: 100%;
-            background: var(--bg); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 100; display: flex; flex-direction: column;
-        }
-        #editor.active { left: 0; }
-        .editor-header { display: flex; padding: 15px; align-items: center; gap: 10px; border-bottom: 1px solid #333; }
-        .editor-body { flex: 1; padding: 15px; overflow-y: auto; }
-        
-        #noteTitle { background: transparent; border: none; color: white; font-size: 1.5rem; width: 100%; outline: none; margin-bottom: 10px; }
-        #noteText { background: transparent; border: none; color: #ccc; font-size: 16px; width: 100%; height: 70%; outline: none; resize: none; }
-
-        /* Tools Panel */
-        .tools-panel {
-            background: #1e1e1e; padding: 15px; border-top: 1px solid #333;
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
-        }
-        button { background: #333; border: none; color: white; padding: 10px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; }
-        .fab {
-            position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px;
-            border-radius: 50%; background: var(--primary); color: black;
-            font-size: 30px; border: none; box-shadow: 0 5px 15px rgba(187, 134, 252, 0.4);
-        }
-        #ocrInput { display: none; }
-        .stat-bar { font-size: 10px; color: #888; padding: 5px 15px; background: #000; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sweet Life Novels</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f0f0f0;}
+header { background: #ff6f61; color: white; padding: 10px; text-align: center;}
+#storyContainer { display: flex; flex-wrap: wrap; justify-content: center; padding: 20px;}
+.story-card { background: white; border-radius: 10px; margin: 10px; padding: 15px; width: 200px; cursor: pointer; transition: transform 0.2s;}
+.story-card:hover { transform: scale(1.05);}
+#addStoryBtn { position: fixed; bottom: 20px; right: 20px; font-size: 30px; cursor: pointer; background: #ff6f61; color: white; border: none; border-radius: 50%; width: 60px; height: 60px;}
+#about { padding: 20px; text-align: center;}
+</style>
 </head>
 <body>
+<header>
+<h1>Sweet Life Novels</h1>
+<button onclick="showAbout()">About</button>
+</header>
 
-    <div id="dashboard">
-        <div class="header">
-            <h2>ZenPad Pro</h2>
-            <button onclick="clearAllData()" style="background: #cf6679;">Reset</button>
-        </div>
-        <input type="text" class="search-bar" id="search" placeholder="Search notes..." oninput="renderNotes()">
-        <div class="notes-grid" id="notesGrid"></div>
-    </div>
+<div id="storyContainer"></div>
 
-    <div id="editor">
-        <div class="editor-header">
-            <button onclick="closeEditor()">← Back</button>
-            <input type="text" id="noteTitle" placeholder="Title">
-            <button onclick="deleteNote()" style="background: #cf6679;">🗑️</button>
-        </div>
-        
-        <div class="stat-bar" id="stats">Words: 0 | Time: 0m</div>
+<button id="addStoryBtn" onclick="addStory()" style="display:none;">+</button>
 
-        <div class="editor-body">
-            <textarea id="noteText" placeholder="Start writing..."></textarea>
-        </div>
+<div id="about" style="display:none;">
+<h2>About Sweet Life Novels</h2>
+<p>Created by Tallen. Enjoy your sweet life with stories!</p>
+</div>
 
-        <div class="tools-panel">
-            <button onclick="triggerOCR()">📸 Scan</button>
-            <button onclick="speakText()">🔊 Read</button>
-            <button onclick="changeFontSize()">T🗚</button>
-            <button onclick="shareNote()">🔗 Share</button>
-            <select id="voiceSelect" style="grid-column: span 2; background: #333; color: white; border: none; border-radius: 5px;"></select>
-            <button onclick="downloadNote()">💾 Save File</button>
-            <button onclick="changeColor()">🎨 Color</button>
-        </div>
-    </div>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-    <input type="file" id="ocrInput" accept="image/*">
-    <button class="fab" onclick="openEditor()">+</button>
+<script>
+// Firebase config
+const firebaseConfig = {
+  databaseURL: "https://novel-pro-4f878-default-rtdb.firebaseio.com/"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-    <script>
-        let notes = JSON.parse(localStorage.getItem('zenpad_notes')) || [];
-        let currentNoteId = null;
-        const colors = ['#1e3a8a', '#1e40af', '#3b82f6', '#10b981', '#059669', '#f59e0b', '#d97706', '#ef4444', '#8b5cf6', '#ec4899'];
+// Ownership password check
+let isOwner = false;
+const password = prompt("Enter ownership password if you are the owner:");
 
-        // --- Core Functions ---
-        function renderNotes() {
-            const grid = document.getElementById('notesGrid');
-            const search = document.getElementById('search').value.toLowerCase();
-            grid.innerHTML = '';
-            
-            notes.filter(n => n.title.toLowerCase().includes(search)).forEach(note => {
-                const card = document.createElement('div');
-                card.className = 'note-card';
-                card.style.backgroundColor = note.color;
-                card.innerHTML = `
-                    <h3>${note.title || 'Untitled'}</h3>
-                    <div class="note-date">${new Date(note.id).toLocaleDateString()}</div>
-                `;
-                card.onclick = () => openEditor(note.id);
-                grid.appendChild(card);
-            });
-        }
+if(password === "1988Henry") {
+  isOwner = true;
+  document.getElementById("addStoryBtn").style.display = "block";
+}
 
-        function openEditor(id = null) {
-            currentNoteId = id;
-            const editor = document.getElementById('editor');
-            const note = notes.find(n => n.id === id) || { title: '', text: '', color: colors[Math.floor(Math.random()*colors.length)] };
-            
-            document.getElementById('noteTitle').value = note.title;
-            document.getElementById('noteText').value = note.text;
-            document.getElementById('noteText').style.color = note.textColor || '#ccc';
-            document.getElementById('noteText').style.fontSize = (note.fontSize || 16) + 'px';
-            
-            editor.classList.add('active');
-            updateStats();
-        }
+// Load stories
+function loadStories() {
+  db.ref('stories').once('value', snapshot => {
+    const container = document.getElementById("storyContainer");
+    container.innerHTML = "";
+    snapshot.forEach(snap => {
+      const story = snap.val();
+      const card = document.createElement("div");
+      card.className = "story-card";
+      card.style.background = randomColor();
+      card.innerHTML = `<h3>${story.title}</h3><p>${story.category}</p>`;
+      card.onclick = () => alert(story.content);
+      container.appendChild(card);
+    });
+  });
+}
 
-        function closeEditor() {
-            saveNote();
-            document.getElementById('editor').classList.remove('active');
-            renderNotes();
-        }
+function randomColor() {
+  const colors = ['#f8b400','#6a2c70','#b83b5e','#0b3954','#ff6f61'];
+  return colors[Math.floor(Math.random()*colors.length)];
+}
 
-        function saveNote() {
-            const title = document.getElementById('noteTitle').value;
-            const text = document.getElementById('noteText').value;
-            if (!title && !text) return;
+// Add story
+function addStory() {
+  const title = prompt("Story Title:");
+  const category = prompt("Category:");
+  const content = prompt("Story Content:");
+  if(title && category && content) {
+    const newStory = {title, category, content};
+    db.ref('stories').push(newStory);
+    loadStories();
+  }
+}
 
-            if (currentNoteId) {
-                const idx = notes.findIndex(n => n.id === currentNoteId);
-                notes[idx].title = title;
-                notes[idx].text = text;
-                notes[idx].lastEdit = Date.now();
-            } else {
-                const newNote = {
-                    id: Date.now(),
-                    title, text,
-                    color: colors[Math.floor(Math.random()*colors.length)],
-                    fontSize: 16,
-                    textColor: '#ccc'
-                };
-                notes.unshift(newNote);
-            }
-            localStorage.setItem('zenpad_notes', JSON.stringify(notes));
-        }
+// About page toggle
+function showAbout() {
+  const about = document.getElementById("about");
+  about.style.display = about.style.display === "none" ? "block" : "none";
+}
 
-        function deleteNote() {
-            if(confirm("Delete this note?")) {
-                notes = notes.filter(n => n.id !== currentNoteId);
-                localStorage.setItem('zenpad_notes', JSON.stringify(notes));
-                closeEditor();
-            }
-        }
-
-        // --- Advanced Features ---
-
-        // 1. TTS Logic
-        function loadVoices() {
-            const voices = speechSynthesis.getVoices();
-            const select = document.getElementById('voiceSelect');
-            select.innerHTML = voices.map((v, i) => `<option value="${i}">${v.name}</option>`).join('');
-        }
-        speechSynthesis.onvoiceschanged = loadVoices;
-
-        function speakText() {
-            const msg = new SpeechSynthesisUtterance(document.getElementById('noteText').value);
-            const voices = speechSynthesis.getVoices();
-            msg.voice = voices[document.getElementById('voiceSelect').value];
-            speechSynthesis.speak(msg);
-        }
-
-        // 2. OCR Logic (No AI API, browser-based)
-        function triggerOCR() { document.getElementById('ocrInput').click(); }
-        document.getElementById('ocrInput').onchange = (e) => {
-            const file = e.target.files[0];
-            Tesseract.recognize(file, 'eng', { logger: m => console.log(m) }).then(({ data: { text } }) => {
-                document.getElementById('noteText').value += "\n" + text;
-                updateStats();
-            });
-        };
-
-        // 3. Customizations
-        function changeFontSize() {
-            let size = prompt("Enter font size (12-40):", "18");
-            if(size) document.getElementById('noteText').style.fontSize = size + "px";
-        }
-
-        function changeColor() {
-            let color = prompt("Enter color code (e.g. gold, #fff, lightblue):", "white");
-            if(color) document.getElementById('noteText').style.color = color;
-        }
-
-        function updateStats() {
-            const text = document.getElementById('noteText').value;
-            const words = text.trim().split(/\s+/).length;
-            const time = Math.ceil(words / 200);
-            document.getElementById('stats').innerText = `Words: ${words} | Read Time: ${time}m | Chars: ${text.length}`;
-        }
-
-        function shareNote() {
-            const title = document.getElementById('noteTitle').value;
-            const text = document.getElementById('noteText').value;
-            if (navigator.share) {
-                navigator.share({ title: title, text: text });
-            }
-        }
-
-        function downloadNote() {
-            const text = document.getElementById('noteText').value;
-            const blob = new Blob([text], {type: "text/plain"});
-            const anchor = document.createElement("a");
-            anchor.download = (document.getElementById('noteTitle').value || "note") + ".txt";
-            anchor.href = window.URL.createObjectURL(blob);
-            anchor.click();
-        }
-
-        function clearAllData() {
-            if(confirm("Erase ALL notes forever?")) {
-                localStorage.clear();
-                notes = [];
-                renderNotes();
-            }
-        }
-
-        document.getElementById('noteText').oninput = updateStats;
-        renderNotes();
-        loadVoices();
-    </script>
+loadStories();
+</script>
 </body>
 </html>
