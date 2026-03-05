@@ -231,6 +231,13 @@
       background: #ddd;
       color: #333;
     }
+    .btn-small {
+      border: none;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      cursor: pointer;
+    }
     .quote-box {
       background: var(--card-bg);
       border-radius: 12px;
@@ -339,7 +346,7 @@
   </header>
 
   <main>
-    <!-- HOME / STORIES SECTION -->
+    <!-- HOME / STORIES -->
     <section id="home" class="section active">
       <div class="toolbar">
         <input type="text" id="searchInput" placeholder="Search stories by title or content..." />
@@ -360,14 +367,14 @@
       <div class="cards" id="storyCards"></div>
     </section>
 
-    <!-- CATEGORIES SECTION -->
+    <!-- CATEGORIES -->
     <section id="categories" class="section">
       <h2>Story categories</h2>
       <p style="font-size:0.85rem;opacity:0.8;">Tap a category to filter stories on the Home tab.</p>
       <div class="category-list" id="categoryList"></div>
     </section>
 
-    <!-- QUOTES SECTION -->
+    <!-- QUOTES -->
     <section id="quotes" class="section">
       <h2>Daily quotes</h2>
       <div class="quote-box">
@@ -377,7 +384,7 @@
       <button class="btn btn-secondary" id="newQuoteBtn">New quote</button>
     </section>
 
-    <!-- ABOUT SECTION -->
+    <!-- ABOUT -->
     <section id="about" class="section">
       <div class="about-box">
         <h2>About Sweet life Novels</h2>
@@ -399,7 +406,7 @@
       </div>
     </section>
 
-    <!-- SETTINGS SECTION -->
+    <!-- SETTINGS -->
     <section id="settings" class="section">
       <h2>Reading & app settings</h2>
       <div class="settings-grid">
@@ -444,15 +451,15 @@
     </section>
   </main>
 
-  <!-- FLOATING ADD BUTTON (ONLY OWNER) -->
+  <!-- FLOATING ADD BUTTON -->
   <button class="floating-add" id="addStoryBtn">+</button>
 
-  <!-- MODAL: OWNERSHIP PASSWORD -->
+  <!-- OWNERSHIP MODAL -->
   <div class="modal-backdrop" id="ownershipModal">
     <div class="modal">
       <h2>Ownership access</h2>
       <p style="font-size:0.85rem;">
-        Only the owner can add or edit stories. Enter the ownership password to unlock the + button.
+        Only the owner can add, edit, pin, or delete stories. Enter the ownership password to unlock the + button.
       </p>
       <label for="ownershipPassword">Ownership password</label>
       <input type="password" id="ownershipPassword" placeholder="Enter password" />
@@ -463,15 +470,19 @@
     </div>
   </div>
 
-  <!-- MODAL: ADD / EDIT STORY -->
+  <!-- ADD / EDIT STORY MODAL -->
   <div class="modal-backdrop" id="storyModal">
     <div class="modal">
       <h2 id="storyModalTitle">Add story</h2>
+
       <label for="storyTitleInput">Title</label>
       <input type="text" id="storyTitleInput" />
 
       <label for="storyCategoryInput">Category</label>
       <select id="storyCategoryInput"></select>
+
+      <label for="storyEmojiInput">Emoji cover</label>
+      <input type="text" id="storyEmojiInput" placeholder="e.g. 😍 😂 😭 👑 🔥" maxlength="3" />
 
       <label for="storyContentInput">Story content</label>
       <textarea id="storyContentInput"></textarea>
@@ -486,7 +497,7 @@
     </div>
   </div>
 
-  <!-- MODAL: VIEW STORY -->
+  <!-- VIEW STORY MODAL -->
   <div class="modal-backdrop" id="viewStoryModal">
     <div class="modal">
       <h2 id="viewStoryTitle"></h2>
@@ -508,13 +519,9 @@
   </footer>
 
   <script>
-    // =========================
-    // BASIC CONFIG & CONSTANTS
-    // =========================
     const FIREBASE_URL = "https://novel-pro-4f878-default-rtdb.firebaseio.com/stories.json";
     const OWNERSHIP_PASSWORD = "1988Henry";
 
-    // 50 CATEGORIES
     const CATEGORIES = [
       "Stand up comedy",
       "Funny stories",
@@ -568,7 +575,6 @@
       "Random vibes"
     ];
 
-    // DAILY QUOTES (SIMPLE ARRAY)
     const QUOTES = [
       { text: "Discipline is choosing what you want most over what you want now.", author: "Unknown" },
       { text: "Your story is still being written. Don’t close the book yet.", author: "Unknown" },
@@ -582,10 +588,7 @@
       { text: "You don’t have to be perfect, just present.", author: "Unknown" }
     ];
 
-    // =========================
-    // STATE
-    // =========================
-    let stories = []; // {id, title, content, category, tags, createdAt}
+    let stories = [];
     let isOwner = false;
     let favorites = new Set(JSON.parse(localStorage.getItem("sl_favorites") || "[]"));
     let lastReadId = localStorage.getItem("sl_last_read") || null;
@@ -595,9 +598,6 @@
     let voices = [];
     let selectedVoice = null;
 
-    // =========================
-    // ELEMENTS
-    // =========================
     const navButtons = document.querySelectorAll(".nav-btn");
     const sections = document.querySelectorAll(".section");
     const storyCardsEl = document.getElementById("storyCards");
@@ -616,6 +616,7 @@
     const storyModalTitle = document.getElementById("storyModalTitle");
     const storyTitleInput = document.getElementById("storyTitleInput");
     const storyCategoryInput = document.getElementById("storyCategoryInput");
+    const storyEmojiInput = document.getElementById("storyEmojiInput");
     const storyContentInput = document.getElementById("storyContentInput");
     const storyTagsInput = document.getElementById("storyTagsInput");
     const storyCancel = document.getElementById("storyCancel");
@@ -637,9 +638,6 @@
     const voiceSelect = document.getElementById("voiceSelect");
     const footerInfo = document.getElementById("footerInfo");
 
-    // =========================
-    // NAVIGATION
-    // =========================
     navButtons.forEach(btn => {
       btn.addEventListener("click", () => {
         const sectionId = btn.dataset.section;
@@ -652,25 +650,19 @@
       });
     });
 
-    // =========================
-    // INITIAL SETUP
-    // =========================
     function initCategories() {
-      // For filter dropdown
       CATEGORIES.forEach(cat => {
         const opt = document.createElement("option");
         opt.value = cat;
         opt.textContent = cat;
         filterCategoryEl.appendChild(opt);
       });
-      // For add-story select
       CATEGORIES.forEach(cat => {
         const opt = document.createElement("option");
         opt.value = cat;
         opt.textContent = cat;
         storyCategoryInput.appendChild(opt);
       });
-      // For category pills
       CATEGORIES.forEach(cat => {
         const pill = document.createElement("div");
         pill.className = "category-pill";
@@ -750,9 +742,6 @@
       quoteAuthorEl.textContent = "- " + q.author;
     }
 
-    // =========================
-    // FIREBASE (REST API)
-    // =========================
     async function loadStories() {
       try {
         const res = await fetch(FIREBASE_URL);
@@ -781,9 +770,25 @@
       renderStories();
     }
 
-    // =========================
-    // STORY RENDERING & FILTERS
-    // =========================
+    async function deleteStory(id) {
+      await fetch(`https://novel-pro-4f878-default-rtdb.firebaseio.com/stories/${id}.json`, {
+        method: "DELETE"
+      });
+      stories = stories.filter(s => s.id !== id);
+      renderStories();
+    }
+
+    async function togglePin(id, value) {
+      await fetch(`https://novel-pro-4f878-default-rtdb.firebaseio.com/stories/${id}.json`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pinned: value })
+      });
+      const s = stories.find(st => st.id === id);
+      if (s) s.pinned = value;
+      renderStories();
+    }
+
     function renderStories() {
       const search = searchInputEl.value.trim().toLowerCase();
       const filterCat = filterCategoryEl.value;
@@ -804,15 +809,18 @@
         filtered = filtered.filter(s => favorites.has(s.id));
       }
 
+      // Pinned first
+      filtered.sort((a, b) => (b.pinned === true) - (a.pinned === true));
+
       const sort = sortSelectEl.value;
       if (sort === "latest") {
-        filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        filtered.sort((a, b) => (b.pinned === true) - (a.pinned === true) || (b.createdAt || 0) - (a.createdAt || 0));
       } else if (sort === "oldest") {
-        filtered.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+        filtered.sort((a, b) => (b.pinned === true) - (a.pinned === true) || (a.createdAt || 0) - (b.createdAt || 0));
       } else if (sort === "title") {
-        filtered.sort((a, b) => a.title.localeCompare(b.title));
+        filtered.sort((a, b) => (b.pinned === true) - (a.pinned === true) || a.title.localeCompare(b.title));
       } else if (sort === "length") {
-        filtered.sort((a, b) => (a.content || "").length - (b.content || "").length);
+        filtered.sort((a, b) => (b.pinned === true) - (a.pinned === true) || (a.content || "").length - (b.content || "").length);
       }
 
       storyCardsEl.innerHTML = "";
@@ -825,7 +833,7 @@
 
         const title = document.createElement("div");
         title.className = "card-title";
-        title.textContent = story.title;
+        title.textContent = `${story.emoji || "📘"} ${story.title}`;
 
         const snippet = document.createElement("div");
         snippet.style.fontSize = "0.8rem";
@@ -866,6 +874,50 @@
         card.appendChild(snippet);
         card.appendChild(meta);
 
+        if (isOwner) {
+          const tools = document.createElement("div");
+          tools.style.display = "flex";
+          tools.style.justifyContent = "space-between";
+          tools.style.marginTop = "8px";
+
+          const editBtn = document.createElement("button");
+          editBtn.textContent = "Edit";
+          editBtn.className = "btn-small";
+          editBtn.style.background = "#4e9cff";
+          editBtn.style.color = "#fff";
+          editBtn.onclick = (e) => {
+            e.stopPropagation();
+            openEditStory(story);
+          };
+
+          const deleteBtn = document.createElement("button");
+          deleteBtn.textContent = "Delete";
+          deleteBtn.className = "btn-small";
+          deleteBtn.style.background = "#ff6b6b";
+          deleteBtn.style.color = "#fff";
+          deleteBtn.onclick = async (e) => {
+            e.stopPropagation();
+            if (confirm("Delete this story?")) {
+              await deleteStory(story.id);
+            }
+          };
+
+          const pinBtn = document.createElement("button");
+          pinBtn.textContent = story.pinned ? "Unpin" : "Pin";
+          pinBtn.className = "btn-small";
+          pinBtn.style.background = "#ffb347";
+          pinBtn.style.color = "#333";
+          pinBtn.onclick = async (e) => {
+            e.stopPropagation();
+            await togglePin(story.id, !story.pinned);
+          };
+
+          tools.appendChild(editBtn);
+          tools.appendChild(deleteBtn);
+          tools.appendChild(pinBtn);
+          card.appendChild(tools);
+        }
+
         card.addEventListener("click", () => openStory(story));
 
         storyCardsEl.appendChild(card);
@@ -884,9 +936,6 @@
       renderStories();
     }
 
-    // =========================
-    // OWNERSHIP & ADD STORY
-    // =========================
     ownershipBtn.addEventListener("click", () => {
       ownershipModal.style.display = "flex";
       ownershipPasswordInput.value = "";
@@ -903,7 +952,8 @@
         isOwner = true;
         addStoryBtn.classList.add("visible");
         ownershipModal.style.display = "none";
-        alert("Ownership unlocked. You can now add stories.");
+        alert("Ownership unlocked. You can now add, edit, pin, and delete stories.");
+        renderStories();
       } else {
         alert("Incorrect password.");
       }
@@ -918,47 +968,88 @@
       storyModalTitle.textContent = "Add story";
       storyTitleInput.value = "";
       storyCategoryInput.value = CATEGORIES[0];
+      storyEmojiInput.value = "📘";
       storyContentInput.value = "";
       storyTagsInput.value = "";
       storyModal.style.display = "flex";
+
+      storySave.onclick = async () => {
+        const title = storyTitleInput.value.trim();
+        const category = storyCategoryInput.value;
+        const content = storyContentInput.value.trim();
+        const tags = storyTagsInput.value.trim();
+        const emoji = storyEmojiInput.value.trim() || "📘";
+
+        if (!title || !content) {
+          alert("Title and content are required.");
+          return;
+        }
+
+        const story = {
+          title,
+          category,
+          content,
+          tags,
+          emoji,
+          createdAt: Date.now(),
+          pinned: false
+        };
+
+        await saveStoryToFirebase(story);
+        storyModal.style.display = "none";
+      };
+    }
+
+    function openEditStory(story) {
+      storyModalTitle.textContent = "Edit story";
+
+      storyTitleInput.value = story.title;
+      storyCategoryInput.value = story.category;
+      storyEmojiInput.value = story.emoji || "📘";
+      storyContentInput.value = story.content;
+      storyTagsInput.value = story.tags || "";
+
+      storyModal.style.display = "flex";
+
+      storySave.onclick = async () => {
+        const updated = {
+          title: storyTitleInput.value.trim(),
+          category: storyCategoryInput.value,
+          emoji: storyEmojiInput.value.trim() || "📘",
+          content: storyContentInput.value.trim(),
+          tags: storyTagsInput.value.trim(),
+          createdAt: story.createdAt,
+          pinned: story.pinned
+        };
+
+        if (!updated.title || !updated.content) {
+          alert("Title and content are required.");
+          return;
+        }
+
+        await fetch(`https://novel-pro-4f878-default-rtdb.firebaseio.com/stories/${story.id}.json`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updated)
+        });
+
+        Object.assign(stories.find(s => s.id === story.id), updated);
+
+        storyModal.style.display = "none";
+        renderStories();
+      };
     }
 
     storyCancel.addEventListener("click", () => {
       storyModal.style.display = "none";
     });
 
-    storySave.addEventListener("click", async () => {
-      const title = storyTitleInput.value.trim();
-      const category = storyCategoryInput.value;
-      const content = storyContentInput.value.trim();
-      const tags = storyTagsInput.value.trim();
-
-      if (!title || !content) {
-        alert("Title and content are required.");
-        return;
-      }
-
-      const story = {
-        title,
-        category,
-        content,
-        tags,
-        createdAt: Date.now()
-      };
-
-      await saveStoryToFirebase(story);
-      storyModal.style.display = "none";
-    });
-
-    // =========================
-    // VIEW STORY + TTS
-    // =========================
     function openStory(story) {
       currentViewStory = story;
       lastReadId = story.id;
       localStorage.setItem("sl_last_read", lastReadId);
 
-      viewStoryTitle.textContent = story.title;
+      viewStoryTitle.textContent = `${story.emoji || "📘"} ${story.title}`;
       const date = story.createdAt ? new Date(story.createdAt) : null;
       viewStoryMeta.textContent =
         (story.category || "Uncategorized") +
@@ -973,15 +1064,13 @@
       stopTTS();
     });
 
-    // TTS using Web Speech API
     function initVoices() {
       if (!("speechSynthesis" in window)) return;
       function loadVoices() {
         voices = window.speechSynthesis.getVoices();
-        // pick up to 5 voices
         const limited = voices.slice(0, 5);
         voiceSelect.innerHTML = "";
-        limited.forEach((v, i) => {
+        limited.forEach((v) => {
           const opt = document.createElement("option");
           opt.value = v.name;
           opt.textContent = v.name + " (" + v.lang + ")";
@@ -1016,9 +1105,6 @@
     ttsPlayBtn.addEventListener("click", playTTS);
     ttsStopBtn.addEventListener("click", stopTTS);
 
-    // =========================
-    // SEARCH / FILTER EVENTS
-    // =========================
     searchInputEl.addEventListener("input", renderStories);
     filterCategoryEl.addEventListener("change", () => {
       selectedCategoryFilter = filterCategoryEl.value;
@@ -1027,9 +1113,6 @@
     sortSelectEl.addEventListener("change", renderStories);
     favoritesOnlyEl.addEventListener("change", renderStories);
 
-    // =========================
-    // CLICK OUTSIDE MODALS
-    // =========================
     [ownershipModal, storyModal, viewStoryModal].forEach(modal => {
       modal.addEventListener("click", (e) => {
         if (e.target === modal) {
@@ -1039,16 +1122,17 @@
       });
     });
 
-    // =========================
-    // INIT ALL
-    // =========================
-    initCategories();
-    initDarkMode();
-    initFontSize();
-    initTextLayout();
-    initQuotes();
-    initVoices();
-    loadStories();
+    function initAll() {
+      initCategories();
+      initDarkMode();
+      initFontSize();
+      initTextLayout();
+      initQuotes();
+      initVoices();
+      loadStories();
+    }
+
+    initAll();
   </script>
 </body>
-      </html>
+          </html>
