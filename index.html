@@ -1,234 +1,1054 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sweet Life Novels</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-<style>
-/* ========= General Layout ========= */
-body {
-  margin:0; padding:0;
-  font-family:'Roboto',sans-serif;
-  background: linear-gradient(135deg,#ffafbd,#ffc3a0);
-  color:#222;
-  transition:background 0.3s,color 0.3s;
-}
-.dark-mode {background:#121212; color:#eee;}
-header {
-  padding:15px; text-align:center;
-  background: linear-gradient(90deg,#ff6f61,#ff9472);
-  color:#fff; font-size:1.5rem; font-weight:bold;
-  box-shadow:0 2px 5px rgba(0,0,0,0.3);
-  position:relative;
-}
-#storyContainer, #categoryContainer, #quoteContainer {
-  display:flex; flex-wrap:wrap; justify-content:center; padding:10px;
-}
-
-/* ========= Category Cards ========= */
-.category-card {
-  background:#fff; padding:10px 15px; margin:8px; border-radius:12px;
-  font-weight:bold; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.2);
-  transition:transform 0.2s, box-shadow 0.2s;
-}
-.category-card:hover {
-  transform:scale(1.05); box-shadow:0 6px 16px rgba(0,0,0,0.25);
-}
-
-/* ========= Story Cards ========= */
-.story-card {
-  background:#fff; border-radius:12px; width:200px; margin:10px; padding:15px;
-  cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.15);
-  transition:transform 0.2s, box-shadow 0.2s;
-}
-.story-card:hover {
-  transform:scale(1.05);
-  box-shadow:0 6px 16px rgba(0,0,0,0.25);
-}
-.story-card h3{margin:0 0 6px 0;}
-.story-card p{margin:0; font-size:0.9rem; color:#555;}
-
-/* ========= Quote Cards ========= */
-#quoteContainer { overflow-x:auto; white-space:nowrap; }
-.quote-card {
-  display:inline-block; background:#fffa; padding:15px; margin:8px;
-  border-radius:12px; min-width:220px; box-shadow:0 4px 12px rgba(0,0,0,0.2);
-  transition:transform 0.2s;
-}
-.quote-card:hover { transform:scale(1.03); }
-
-/* ========= Add Story Button ========= */
-#addStoryBtn {
-  position:fixed; bottom:20px; right:20px; font-size:30px; cursor:pointer;
-  background:#ff6f61;color:white;border:none;border-radius:50%;
-  width:60px; height:60px; box-shadow:0 4px 12px rgba(0,0,0,0.25);
-  display:none; z-index:100;
-}
-
-/* ========= Full Screen Story ========= */
-#fullStoryModal {
-  position:fixed; top:0; left:0; width:100%; height:100%;
-  background: rgba(0,0,0,0.95); color:#fff; display:none;
-  flex-direction:column; z-index:9999; padding:30px; overflow-y:auto;
-  animation:fadeIn 0.3s;
-}
-#fullStoryModal h2 { font-size:2rem; margin-bottom:15px; }
-#fullStoryModal p { font-size:1.1rem; line-height:1.6; white-space: pre-wrap; }
-#fullStoryModal .closeBtn { position:absolute; top:20px; right:30px; font-size:2rem; cursor:pointer; }
-#ttsControls { display:none; margin-top:15px; }
-#ttsControls label { margin-right:5px; }
-#ttsControls button { margin-right:5px; }
-
-/* ========= Settings Panel ========= */
-#settingsPanel {
-  position:fixed; top:0; right:-320px; width:320px; height:100%;
-  background:#fff; box-shadow:-4px 0 12px rgba(0,0,0,0.2);
-  transition:right 0.3s; padding:20px; overflow-y:auto; z-index:1000;
-}
-#settingsPanel.dark-mode{background:#222;color:#eee;}
-#settingsPanel h2{text-align:center;margin-top:0;}
-#settingsPanel button {
-  margin:10px 0; padding:10px; width:100%; cursor:pointer; border:none; border-radius:6px;
-  background:#ff6f61;color:white;font-weight:bold;transition:0.2s;
-}
-#settingsPanel button:hover { background:#ff9472; }
-#settingsToggle {
-  position:fixed; top:15px; right:15px; background:#ff6f61;border:none;
-  color:#fff; padding:10px 15px; border-radius:5px; cursor:pointer; z-index:100;
-}
-
-/* ========= Animations ========= */
-@keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
-</style>
+  <meta charset="UTF-8" />
+  <title>Sweet life Novels</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --card-bg: #ffffff;
+      --text: #222;
+      --accent: #ff6b6b;
+      --accent2: #4e9cff;
+      --accent3: #ffb347;
+      --accent4: #6bcf8b;
+      --accent5: #b57edc;
+    }
+    body.dark {
+      --bg: #111;
+      --card-bg: #1e1e1e;
+      --text: #f5f5f5;
+    }
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+    }
+    header {
+      background: linear-gradient(135deg, #ff6b6b, #4e9cff);
+      color: #fff;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.4rem;
+    }
+    header small {
+      font-size: 0.8rem;
+      opacity: 0.9;
+    }
+    nav {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .nav-btn {
+      border: none;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+    .nav-btn.active {
+      background: #fff;
+      color: #333;
+      font-weight: 600;
+    }
+    main {
+      padding: 12px 16px 80px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+      align-items: center;
+    }
+    .toolbar input,
+    .toolbar select {
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 0.85rem;
+    }
+    .toolbar label {
+      font-size: 0.8rem;
+    }
+    .switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 10px 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 120px;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+    }
+    .card-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+      font-size: 0.95rem;
+    }
+    .card-meta {
+      font-size: 0.7rem;
+      opacity: 0.8;
+      display: flex;
+      justify-content: space-between;
+      margin-top: 4px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 0.65rem;
+      background: rgba(0,0,0,0.06);
+    }
+    .favorite {
+      color: #ffb347;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .floating-add {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: none;
+      background: #ff6b6b;
+      color: #fff;
+      font-size: 1.8rem;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      cursor: pointer;
+      z-index: 20;
+    }
+    .floating-add.visible {
+      display: flex;
+    }
+    .section {
+      display: none;
+    }
+    .section.active {
+      display: block;
+    }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 30;
+    }
+    .modal {
+      background: var(--card-bg);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 16px;
+      max-width: 480px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    }
+    .modal h2 {
+      margin-top: 0;
+      font-size: 1.1rem;
+    }
+    .modal label {
+      font-size: 0.8rem;
+      display: block;
+      margin-top: 8px;
+    }
+    .modal input,
+    .modal textarea,
+    .modal select {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+    .modal textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: #4e9cff;
+      color: #fff;
+    }
+    .btn-secondary {
+      background: #ddd;
+      color: #333;
+    }
+    .quote-box {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      margin-bottom: 12px;
+      font-size: 0.9rem;
+    }
+    .quote-author {
+      font-size: 0.8rem;
+      opacity: 0.8;
+      margin-top: 4px;
+    }
+    .about-box {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    .settings-grid {
+      display: grid;
+      gap: 10px;
+      max-width: 500px;
+    }
+    .settings-item {
+      background: var(--card-bg);
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      font-size: 0.85rem;
+    }
+    .settings-item h3 {
+      margin: 0 0 4px;
+      font-size: 0.95rem;
+    }
+    .category-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+      font-size: 0.75rem;
+    }
+    .category-pill {
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.06);
+      cursor: pointer;
+    }
+    .category-pill.active {
+      background: #4e9cff;
+      color: #fff;
+    }
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--card-bg);
+      border-top: 1px solid rgba(0,0,0,0.08);
+      padding: 6px 12px;
+      font-size: 0.7rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+    }
+    .small-note {
+      opacity: 0.7;
+    }
+    .story-meta-line {
+      font-size: 0.75rem;
+      opacity: 0.8;
+      margin-bottom: 6px;
+    }
+    .tts-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      margin-top: 8px;
+      font-size: 0.8rem;
+    }
+    .tts-controls select {
+      max-width: 220px;
+    }
+  </style>
 </head>
 <body>
+  <header>
+    <div>
+      <h1>Sweet life Novels</h1>
+      <small>Stories, feelings, and real life in one place.</small>
+    </div>
+    <div>
+      <nav>
+        <button class="nav-btn active" data-section="home">Home</button>
+        <button class="nav-btn" data-section="categories">Categories</button>
+        <button class="nav-btn" data-section="quotes">Daily Quotes</button>
+        <button class="nav-btn" data-section="about">About</button>
+        <button class="nav-btn" data-section="settings">Settings</button>
+        <button class="nav-btn" id="ownershipBtn">Ownership</button>
+      </nav>
+    </div>
+  </header>
 
-<header>Sweet Life Novels</header>
-<button id="settingsToggle">⚙️</button>
+  <main>
+    <!-- HOME / STORIES SECTION -->
+    <section id="home" class="section active">
+      <div class="toolbar">
+        <input type="text" id="searchInput" placeholder="Search stories by title or content..." />
+        <select id="filterCategory">
+          <option value="">All categories</option>
+        </select>
+        <select id="sortSelect">
+          <option value="latest">Latest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="title">Title A–Z</option>
+          <option value="length">Shortest first</option>
+        </select>
+        <label class="switch">
+          <input type="checkbox" id="favoritesOnly" />
+          Favorites only
+        </label>
+      </div>
+      <div class="cards" id="storyCards"></div>
+    </section>
 
-<!-- Category Cards -->
-<div id="categoryContainer"></div>
+    <!-- CATEGORIES SECTION -->
+    <section id="categories" class="section">
+      <h2>Story categories</h2>
+      <p style="font-size:0.85rem;opacity:0.8;">Tap a category to filter stories on the Home tab.</p>
+      <div class="category-list" id="categoryList"></div>
+    </section>
 
-<!-- Daily Quotes -->
-<div id="quoteContainer"></div>
+    <!-- QUOTES SECTION -->
+    <section id="quotes" class="section">
+      <h2>Daily quotes</h2>
+      <div class="quote-box">
+        <div id="quoteText"></div>
+        <div class="quote-author" id="quoteAuthor"></div>
+      </div>
+      <button class="btn btn-secondary" id="newQuoteBtn">New quote</button>
+    </section>
 
-<!-- Story Cards -->
-<div id="storyContainer"></div>
+    <!-- ABOUT SECTION -->
+    <section id="about" class="section">
+      <div class="about-box">
+        <h2>About Sweet life Novels</h2>
+        <p>
+          Sweet life Novels is a simple, powerful reading space created by <strong>Tallen</strong>.
+          It’s built for real stories: funny, sad, romantic, motivational, psychological, and everything in between.
+        </p>
+        <p>
+          Here, you just open and read—no sign up, no login. Stories are stored safely in the cloud so they stay
+          available for you and everyone who visits.
+        </p>
+        <p>
+          Tallen believes in storytelling as a way to heal, laugh, learn, and grow. Every card you open is a piece
+          of life, written and curated with care.
+        </p>
+        <p style="font-size:0.8rem;opacity:0.8;">
+          Built with love, discipline, and a little bit of stubbornness.
+        </p>
+      </div>
+    </section>
 
-<!-- Add Story Button -->
-<button id="addStoryBtn" onclick="addStory()">+</button>
+    <!-- SETTINGS SECTION -->
+    <section id="settings" class="section">
+      <h2>Reading & app settings</h2>
+      <div class="settings-grid">
+        <div class="settings-item">
+          <h3>Dark mode</h3>
+          <label class="switch">
+            <input type="checkbox" id="darkModeToggle" />
+            Enable dark mode
+          </label>
+        </div>
+        <div class="settings-item">
+          <h3>Font size</h3>
+          <label for="fontSizeRange">Adjust story text size</label>
+          <input type="range" id="fontSizeRange" min="14" max="24" value="16" />
+        </div>
+        <div class="settings-item">
+          <h3>Text-to-speech voice</h3>
+          <div class="tts-controls">
+            <label for="voiceSelect">Voice:</label>
+            <select id="voiceSelect"></select>
+          </div>
+          <small style="opacity:0.7;">Up to 5 voices from your device’s available TTS voices.</small>
+        </div>
+        <div class="settings-item">
+          <h3>Reading comfort</h3>
+          <label class="switch">
+            <input type="checkbox" id="justifyTextToggle" />
+            Justify story text
+          </label>
+          <label class="switch">
+            <input type="checkbox" id="lineSpacingToggle" />
+            Extra line spacing
+          </label>
+        </div>
+        <div class="settings-item">
+          <h3>Local features</h3>
+          <p style="margin:0;">
+            Favorites, last read story, and some preferences are stored on your device using localStorage.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
 
-<!-- Full Screen Story Modal -->
-<div id="fullStoryModal">
-  <span class="closeBtn" onclick="closeStory()">← Back</span>
-  <h2 id="fullStoryTitle"></h2>
-  <p id="fullStoryContent"></p>
-  <button onclick="toggleTTS()">TTS 🔊</button>
-  <div id="ttsControls">
-    <label>Voice:</label><select id="voiceSelect"></select>
-    <label>Speed:</label><input type="range" id="speedRange" min="0.5" max="2" step="0.1" value="1">
-    <button onclick="playStory()">Play</button>
-    <button onclick="pauseStory()">Pause</button>
-    <button onclick="stopStory()">Stop</button>
+  <!-- FLOATING ADD BUTTON (ONLY OWNER) -->
+  <button class="floating-add" id="addStoryBtn">+</button>
+
+  <!-- MODAL: OWNERSHIP PASSWORD -->
+  <div class="modal-backdrop" id="ownershipModal">
+    <div class="modal">
+      <h2>Ownership access</h2>
+      <p style="font-size:0.85rem;">
+        Only the owner can add or edit stories. Enter the ownership password to unlock the + button.
+      </p>
+      <label for="ownershipPassword">Ownership password</label>
+      <input type="password" id="ownershipPassword" placeholder="Enter password" />
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="ownershipCancel">Cancel</button>
+        <button class="btn btn-primary" id="ownershipConfirm">Unlock</button>
+      </div>
+    </div>
   </div>
-</div>
 
-<!-- Settings Panel -->
-<div id="settingsPanel">
-  <button onclick="closeSettings()">← Back</button>
-  <h2>Settings</h2>
-  <button onclick="toggleDarkMode()">Toggle Dark/Light Mode</button>
-  <button onclick="promptOwner()">Enter Ownership Password</button>
-  <p id="ownerStatus">Owner: No</p>
-  <button onclick="showAbout()">About</button>
-  <div id="aboutInfo" style="display:none;">
-    <h3>About Sweet Life Novels</h3>
-    <p>Created by Tallen. Enjoy your sweet life with stories!</p>
+  <!-- MODAL: ADD / EDIT STORY -->
+  <div class="modal-backdrop" id="storyModal">
+    <div class="modal">
+      <h2 id="storyModalTitle">Add story</h2>
+      <label for="storyTitleInput">Title</label>
+      <input type="text" id="storyTitleInput" />
+
+      <label for="storyCategoryInput">Category</label>
+      <select id="storyCategoryInput"></select>
+
+      <label for="storyContentInput">Story content</label>
+      <textarea id="storyContentInput"></textarea>
+
+      <label for="storyTagsInput">Tags (comma separated)</label>
+      <input type="text" id="storyTagsInput" placeholder="e.g. love, heartbreak, campus" />
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="storyCancel">Cancel</button>
+        <button class="btn btn-primary" id="storySave">Save</button>
+      </div>
+    </div>
   </div>
-</div>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <!-- MODAL: VIEW STORY -->
+  <div class="modal-backdrop" id="viewStoryModal">
+    <div class="modal">
+      <h2 id="viewStoryTitle"></h2>
+      <div class="story-meta-line" id="viewStoryMeta"></div>
+      <div id="viewStoryContent" style="font-size:16px;line-height:1.5;white-space:pre-wrap;margin-top:6px;"></div>
+      <div class="tts-controls">
+        <button class="btn btn-secondary" id="ttsPlayBtn">Play</button>
+        <button class="btn btn-secondary" id="ttsStopBtn">Stop</button>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="viewStoryClose">Close</button>
+      </div>
+    </div>
+  </div>
 
-<script>
-// Firebase
-const firebaseConfig = { databaseURL: "https://novel-pro-4f878-default-rtdb.firebaseio.com/" };
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+  <footer>
+    <span class="small-note">Sweet life Novels • Curated by Tallen</span>
+    <span class="small-note" id="footerInfo">Stories: 0 • Favorites: 0</span>
+  </footer>
 
-// Owner & Dark Mode
-let isOwner = false;
-function promptOwner(){
-  const pw = prompt("Enter ownership password:");
-  if(pw==="1988Henry"){isOwner=true;document.getElementById("addStoryBtn").style.display="block";document.getElementById("ownerStatus").innerText="Owner: Yes";alert("Owner access granted!");}
-  else alert("Wrong password");
-}
-function toggleDarkMode(){
-  document.body.classList.toggle("dark-mode");
-  document.getElementById("settingsPanel").classList.toggle("dark-mode");
-}
+  <script>
+    // =========================
+    // BASIC CONFIG & CONSTANTS
+    // =========================
+    const FIREBASE_URL = "https://novel-pro-4f878-default-rtdb.firebaseio.com/stories.json";
+    const OWNERSHIP_PASSWORD = "1988Henry";
 
-// Settings Panel
-const settingsPanel=document.getElementById("settingsPanel");
-document.getElementById("settingsToggle").onclick=()=>{settingsPanel.style.right=(settingsPanel.style.right==="0px"? "-320px":"0px");};
-function closeSettings(){settingsPanel.style.right="-320px";}
+    // 50 CATEGORIES
+    const CATEGORIES = [
+      "Stand up comedy",
+      "Funny stories",
+      "Sad stories",
+      "Love stories",
+      "Real life stories",
+      "Motivational stories",
+      "Psychology study",
+      "Horror",
+      "Thriller",
+      "Crime",
+      "Mystery",
+      "Detective",
+      "Fantasy",
+      "Sci-fi",
+      "Adventure",
+      "Historical",
+      "Drama",
+      "Family",
+      "Friendship",
+      "School life",
+      "Campus life",
+      "Work life",
+      "Spiritual",
+      "Faith & hope",
+      "Poetry",
+      "Short shorts",
+      "Micro stories",
+      "Diary style",
+      "Letters",
+      "War & survival",
+      "Street life",
+      "Village life",
+      "City life",
+      "Comedy romance",
+      "Heartbreak",
+      "Second chances",
+      "Self-discovery",
+      "Mental health",
+      "Inspiration",
+      "Sports",
+      "Music & art",
+      "Entrepreneurship",
+      "Success & failure",
+      "Life lessons",
+      "Children stories",
+      "Teen stories",
+      "Parenting",
+      "Relationships",
+      "Culture & tradition",
+      "Random vibes"
+    ];
 
-// Stories
-function loadStories(){
-  db.ref('stories').once('value',snapshot=>{
-    const container=document.getElementById("storyContainer");
-    container.innerHTML="";
-    snapshot.forEach(snap=>{
-      const story=snap.val();
-      const card=document.createElement("div");
-      card.className="story-card";
-      card.style.background=randomColor();
-      card.innerHTML=`<h3>${story.title}</h3><p>${story.category}</p>`;
-      card.onclick=()=>openStory(story.title,story.content);
-      container.appendChild(card);
+    // DAILY QUOTES (SIMPLE ARRAY)
+    const QUOTES = [
+      { text: "Discipline is choosing what you want most over what you want now.", author: "Unknown" },
+      { text: "Your story is still being written. Don’t close the book yet.", author: "Unknown" },
+      { text: "Sometimes the bravest thing you can do is keep going.", author: "Unknown" },
+      { text: "Pain shapes you, but it doesn’t have to define you.", author: "Unknown" },
+      { text: "You are allowed to be both a masterpiece and a work in progress.", author: "Unknown" },
+      { text: "Small consistent steps beat random big moves.", author: "Unknown" },
+      { text: "You survived your worst days. That’s not an accident.", author: "Unknown" },
+      { text: "Real strength is quiet. It doesn’t need to be announced.", author: "Unknown" },
+      { text: "Your future self is watching what you do today.", author: "Unknown" },
+      { text: "You don’t have to be perfect, just present.", author: "Unknown" }
+    ];
+
+    // =========================
+    // STATE
+    // =========================
+    let stories = []; // {id, title, content, category, tags, createdAt}
+    let isOwner = false;
+    let favorites = new Set(JSON.parse(localStorage.getItem("sl_favorites") || "[]"));
+    let lastReadId = localStorage.getItem("sl_last_read") || null;
+    let selectedCategoryFilter = "";
+    let selectedCategoryPill = "";
+    let currentViewStory = null;
+    let voices = [];
+    let selectedVoice = null;
+
+    // =========================
+    // ELEMENTS
+    // =========================
+    const navButtons = document.querySelectorAll(".nav-btn");
+    const sections = document.querySelectorAll(".section");
+    const storyCardsEl = document.getElementById("storyCards");
+    const filterCategoryEl = document.getElementById("filterCategory");
+    const categoryListEl = document.getElementById("categoryList");
+    const searchInputEl = document.getElementById("searchInput");
+    const sortSelectEl = document.getElementById("sortSelect");
+    const favoritesOnlyEl = document.getElementById("favoritesOnly");
+    const addStoryBtn = document.getElementById("addStoryBtn");
+    const ownershipBtn = document.getElementById("ownershipBtn");
+    const ownershipModal = document.getElementById("ownershipModal");
+    const ownershipPasswordInput = document.getElementById("ownershipPassword");
+    const ownershipCancel = document.getElementById("ownershipCancel");
+    const ownershipConfirm = document.getElementById("ownershipConfirm");
+    const storyModal = document.getElementById("storyModal");
+    const storyModalTitle = document.getElementById("storyModalTitle");
+    const storyTitleInput = document.getElementById("storyTitleInput");
+    const storyCategoryInput = document.getElementById("storyCategoryInput");
+    const storyContentInput = document.getElementById("storyContentInput");
+    const storyTagsInput = document.getElementById("storyTagsInput");
+    const storyCancel = document.getElementById("storyCancel");
+    const storySave = document.getElementById("storySave");
+    const viewStoryModal = document.getElementById("viewStoryModal");
+    const viewStoryTitle = document.getElementById("viewStoryTitle");
+    const viewStoryMeta = document.getElementById("viewStoryMeta");
+    const viewStoryContent = document.getElementById("viewStoryContent");
+    const viewStoryClose = document.getElementById("viewStoryClose");
+    const ttsPlayBtn = document.getElementById("ttsPlayBtn");
+    const ttsStopBtn = document.getElementById("ttsStopBtn");
+    const quoteTextEl = document.getElementById("quoteText");
+    const quoteAuthorEl = document.getElementById("quoteAuthor");
+    const newQuoteBtn = document.getElementById("newQuoteBtn");
+    const darkModeToggle = document.getElementById("darkModeToggle");
+    const fontSizeRange = document.getElementById("fontSizeRange");
+    const justifyTextToggle = document.getElementById("justifyTextToggle");
+    const lineSpacingToggle = document.getElementById("lineSpacingToggle");
+    const voiceSelect = document.getElementById("voiceSelect");
+    const footerInfo = document.getElementById("footerInfo");
+
+    // =========================
+    // NAVIGATION
+    // =========================
+    navButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const sectionId = btn.dataset.section;
+        if (!sectionId) return;
+        navButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        sections.forEach(sec => {
+          sec.classList.toggle("active", sec.id === sectionId);
+        });
+      });
     });
-  });
-}
-function randomColor(){const c=['#f8b400','#6a2c70','#b83b5e','#0b3954','#ff6f61','#3a86ff','#ffbe0b','#fb5607','#ff006e','#8338ec'];return c[Math.floor(Math.random()*c.length)];}
-function addStory(){
-  const title=prompt("Story Title:");
-  const category=prompt("Category:");
-  const content=prompt("Story Content:");
-  if(title&&category&&content){db.ref('stories').push({title,category,content});loadStories();}
-}
 
-// Full Screen Story
-const modal=document.getElementById("fullStoryModal");
-const fullTitle=document.getElementById("fullStoryTitle");
-const fullContent=document.getElementById("fullStoryContent");
-const ttsControls=document.getElementById("ttsControls");
-let ttsVisible=false;
-function openStory(title,content){fullTitle.innerText=title;fullContent.innerText=content;modal.style.display="flex";}
-function closeStory(){modal.style.display="none";stopStory();if(ttsVisible){ttsControls.style.display="none";ttsVisible=false;}}
+    // =========================
+    // INITIAL SETUP
+    // =========================
+    function initCategories() {
+      // For filter dropdown
+      CATEGORIES.forEach(cat => {
+        const opt = document.createElement("option");
+        opt.value = cat;
+        opt.textContent = cat;
+        filterCategoryEl.appendChild(opt);
+      });
+      // For add-story select
+      CATEGORIES.forEach(cat => {
+        const opt = document.createElement("option");
+        opt.value = cat;
+        opt.textContent = cat;
+        storyCategoryInput.appendChild(opt);
+      });
+      // For category pills
+      CATEGORIES.forEach(cat => {
+        const pill = document.createElement("div");
+        pill.className = "category-pill";
+        pill.textContent = cat;
+        pill.addEventListener("click", () => {
+          selectedCategoryPill = selectedCategoryPill === cat ? "" : cat;
+          selectedCategoryFilter = selectedCategoryPill;
+          filterCategoryEl.value = selectedCategoryFilter;
+          renderStories();
+          document.querySelectorAll(".category-pill").forEach(p => {
+            p.classList.toggle("active", p.textContent === selectedCategoryPill);
+          });
+        });
+        categoryListEl.appendChild(pill);
+      });
+    }
 
-// TTS
-let utterance=null;
-function toggleTTS(){ttsVisible=!ttsVisible;ttsControls.style.display=ttsVisible?"block":"none";}
-function playStory(){const voices=speechSynthesis.getVoices();const voiceSelect=document.getElementById("voiceSelect");const speed=parseFloat(document.getElementById("speedRange").value);if(!utterance)utterance=new SpeechSynthesisUtterance(fullContent.innerText);utterance.rate=speed;utterance.voice=voices[voiceSelect.value]||null;speechSynthesis.speak(utterance);}
-function pauseStory(){speechSynthesis.pause();}
-function stopStory(){speechSynthesis.cancel();utterance=null;}
-function loadVoices(){const voices=speechSynthesis.getVoices();const select=document.getElementById("voiceSelect");select.innerHTML="";voices.slice(0,5).forEach((v,i)=>{const option=document.createElement("option");option.value=i;option.text=v.name;select.appendChild(option);});}
-speechSynthesis.onvoiceschanged=loadVoices;
+    function initDarkMode() {
+      const saved = localStorage.getItem("sl_dark_mode");
+      if (saved === "true") {
+        document.body.classList.add("dark");
+        darkModeToggle.checked = true;
+      }
+      darkModeToggle.addEventListener("change", () => {
+        document.body.classList.toggle("dark", darkModeToggle.checked);
+        localStorage.setItem("sl_dark_mode", darkModeToggle.checked ? "true" : "false");
+      });
+    }
 
-// About
-function showAbout(){const info=document.getElementById("aboutInfo");info.style.display=(info.style.display==="none"?"block":"none");}
+    function initFontSize() {
+      const saved = localStorage.getItem("sl_font_size");
+      if (saved) {
+        fontSizeRange.value = saved;
+        viewStoryContent.style.fontSize = saved + "px";
+      }
+      fontSizeRange.addEventListener("input", () => {
+        const size = fontSizeRange.value;
+        viewStoryContent.style.fontSize = size + "px";
+        localStorage.setItem("sl_font_size", size);
+      });
+    }
 
-// Example Categories & Quotes
-const categories=["Love","Funny","Sad","Motivational","Real Life","Psychology","Stand Up Comedy"];
-const quotes=["Life is beautiful","Keep moving forward","Happiness is homemade","Believe in yourself","Stay strong every day"];
-function loadCategories(){const catCont=document.getElementById("categoryContainer");categories.forEach(c=>{const card=document.createElement("div");card.className="category-card";card.innerText=c;card.onclick=()=>filterByCategory(c);catCont.appendChild(card);});}
-function loadQuotes(){const quoteCont=document.getElementById("quoteContainer");quotes.forEach(q=>{const card=document.createElement("div");card.className="quote-card";card.innerText=q;quoteCont.appendChild(card);});}
-function filterByCategory(cat){db.ref('stories').once('value',snapshot=>{const container=document.getElementById("storyContainer");container.innerHTML="";snapshot.forEach(snap=>{const s=snap.val();if(s.category===cat){const card=document.createElement("div");card.className="story-card";card.style.background=randomColor();card.innerHTML=`<h3>${s.title}</h3><p>${s.category}</p>`;card.onclick=()=>openStory(s.title,s.content);container.appendChild(card);}});});}
+    function initTextLayout() {
+      const justify = localStorage.getItem("sl_justify") === "true";
+      const spacing = localStorage.getItem("sl_spacing") === "true";
+      justifyTextToggle.checked = justify;
+      lineSpacingToggle.checked = spacing;
+      applyTextLayout();
+      justifyTextToggle.addEventListener("change", () => {
+        localStorage.setItem("sl_justify", justifyTextToggle.checked ? "true" : "false");
+        applyTextLayout();
+      });
+      lineSpacingToggle.addEventListener("change", () => {
+        localStorage.setItem("sl_spacing", lineSpacingToggle.checked ? "true" : "false");
+        applyTextLayout();
+      });
+    }
 
-// Initialize
-loadStories();loadCategories();loadQuotes();
-</script>
+    function applyTextLayout() {
+      viewStoryContent.style.textAlign = justifyTextToggle.checked ? "justify" : "left";
+      viewStoryContent.style.lineHeight = lineSpacingToggle.checked ? "1.8" : "1.5";
+    }
+
+    function initQuotes() {
+      showDailyQuote();
+      newQuoteBtn.addEventListener("click", () => {
+        const random = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+        quoteTextEl.textContent = "“" + random.text + "”";
+        quoteAuthorEl.textContent = "- " + random.author;
+      });
+    }
+
+    function showDailyQuote() {
+      const index = new Date().getDate() % QUOTES.length;
+      const q = QUOTES[index];
+      quoteTextEl.textContent = "“" + q.text + "”";
+      quoteAuthorEl.textContent = "- " + q.author;
+    }
+
+    // =========================
+    // FIREBASE (REST API)
+    // =========================
+    async function loadStories() {
+      try {
+        const res = await fetch(FIREBASE_URL);
+        const data = await res.json();
+        stories = [];
+        if (data) {
+          Object.keys(data).forEach(id => {
+            stories.push({ id, ...data[id] });
+          });
+        }
+        renderStories();
+      } catch (e) {
+        console.error("Error loading stories:", e);
+      }
+    }
+
+    async function saveStoryToFirebase(story) {
+      const res = await fetch(FIREBASE_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(story)
+      });
+      const data = await res.json();
+      const id = data.name;
+      stories.push({ id, ...story });
+      renderStories();
+    }
+
+    // =========================
+    // STORY RENDERING & FILTERS
+    // =========================
+    function renderStories() {
+      const search = searchInputEl.value.trim().toLowerCase();
+      const filterCat = filterCategoryEl.value;
+      const favoritesOnly = favoritesOnlyEl.checked;
+
+      let filtered = stories.slice();
+
+      if (search) {
+        filtered = filtered.filter(s =>
+          s.title.toLowerCase().includes(search) ||
+          (s.content || "").toLowerCase().includes(search)
+        );
+      }
+      if (filterCat) {
+        filtered = filtered.filter(s => s.category === filterCat);
+      }
+      if (favoritesOnly) {
+        filtered = filtered.filter(s => favorites.has(s.id));
+      }
+
+      const sort = sortSelectEl.value;
+      if (sort === "latest") {
+        filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      } else if (sort === "oldest") {
+        filtered.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+      } else if (sort === "title") {
+        filtered.sort((a, b) => a.title.localeCompare(b.title));
+      } else if (sort === "length") {
+        filtered.sort((a, b) => (a.content || "").length - (b.content || "").length);
+      }
+
+      storyCardsEl.innerHTML = "";
+      const colors = ["var(--accent)", "var(--accent2)", "var(--accent3)", "var(--accent4)", "var(--accent5)"];
+
+      filtered.forEach((story, index) => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.style.borderTop = "4px solid " + colors[index % colors.length];
+
+        const title = document.createElement("div");
+        title.className = "card-title";
+        title.textContent = story.title;
+
+        const snippet = document.createElement("div");
+        snippet.style.fontSize = "0.8rem";
+        snippet.style.opacity = "0.85";
+        snippet.textContent = (story.content || "").slice(0, 120) + (story.content && story.content.length > 120 ? "..." : "");
+
+        const meta = document.createElement("div");
+        meta.className = "card-meta";
+
+        const leftMeta = document.createElement("div");
+        const catBadge = document.createElement("span");
+        catBadge.className = "badge";
+        catBadge.textContent = story.category || "Uncategorized";
+        leftMeta.appendChild(catBadge);
+
+        const lengthBadge = document.createElement("span");
+        lengthBadge.className = "badge";
+        lengthBadge.style.marginLeft = "4px";
+        const len = (story.content || "").length;
+        lengthBadge.textContent = len < 400 ? "Short" : len < 1200 ? "Medium" : "Long";
+        leftMeta.appendChild(lengthBadge);
+
+        const rightMeta = document.createElement("div");
+        const fav = document.createElement("span");
+        fav.className = "favorite";
+        fav.textContent = favorites.has(story.id) ? "★" : "☆";
+        fav.title = "Toggle favorite";
+        fav.addEventListener("click", (e) => {
+          e.stopPropagation();
+          toggleFavorite(story.id);
+        });
+        rightMeta.appendChild(fav);
+
+        meta.appendChild(leftMeta);
+        meta.appendChild(rightMeta);
+
+        card.appendChild(title);
+        card.appendChild(snippet);
+        card.appendChild(meta);
+
+        card.addEventListener("click", () => openStory(story));
+
+        storyCardsEl.appendChild(card);
+      });
+
+      footerInfo.textContent = `Stories: ${stories.length} • Favorites: ${favorites.size}`;
+    }
+
+    function toggleFavorite(id) {
+      if (favorites.has(id)) {
+        favorites.delete(id);
+      } else {
+        favorites.add(id);
+      }
+      localStorage.setItem("sl_favorites", JSON.stringify(Array.from(favorites)));
+      renderStories();
+    }
+
+    // =========================
+    // OWNERSHIP & ADD STORY
+    // =========================
+    ownershipBtn.addEventListener("click", () => {
+      ownershipModal.style.display = "flex";
+      ownershipPasswordInput.value = "";
+      ownershipPasswordInput.focus();
+    });
+
+    ownershipCancel.addEventListener("click", () => {
+      ownershipModal.style.display = "none";
+    });
+
+    ownershipConfirm.addEventListener("click", () => {
+      const val = ownershipPasswordInput.value.trim();
+      if (val === OWNERSHIP_PASSWORD) {
+        isOwner = true;
+        addStoryBtn.classList.add("visible");
+        ownershipModal.style.display = "none";
+        alert("Ownership unlocked. You can now add stories.");
+      } else {
+        alert("Incorrect password.");
+      }
+    });
+
+    addStoryBtn.addEventListener("click", () => {
+      if (!isOwner) return;
+      openStoryModal();
+    });
+
+    function openStoryModal() {
+      storyModalTitle.textContent = "Add story";
+      storyTitleInput.value = "";
+      storyCategoryInput.value = CATEGORIES[0];
+      storyContentInput.value = "";
+      storyTagsInput.value = "";
+      storyModal.style.display = "flex";
+    }
+
+    storyCancel.addEventListener("click", () => {
+      storyModal.style.display = "none";
+    });
+
+    storySave.addEventListener("click", async () => {
+      const title = storyTitleInput.value.trim();
+      const category = storyCategoryInput.value;
+      const content = storyContentInput.value.trim();
+      const tags = storyTagsInput.value.trim();
+
+      if (!title || !content) {
+        alert("Title and content are required.");
+        return;
+      }
+
+      const story = {
+        title,
+        category,
+        content,
+        tags,
+        createdAt: Date.now()
+      };
+
+      await saveStoryToFirebase(story);
+      storyModal.style.display = "none";
+    });
+
+    // =========================
+    // VIEW STORY + TTS
+    // =========================
+    function openStory(story) {
+      currentViewStory = story;
+      lastReadId = story.id;
+      localStorage.setItem("sl_last_read", lastReadId);
+
+      viewStoryTitle.textContent = story.title;
+      const date = story.createdAt ? new Date(story.createdAt) : null;
+      viewStoryMeta.textContent =
+        (story.category || "Uncategorized") +
+        (date ? " • " + date.toLocaleDateString() : "") +
+        (story.tags ? " • " + story.tags : "");
+      viewStoryContent.textContent = story.content || "";
+      viewStoryModal.style.display = "flex";
+    }
+
+    viewStoryClose.addEventListener("click", () => {
+      viewStoryModal.style.display = "none";
+      stopTTS();
+    });
+
+    // TTS using Web Speech API
+    function initVoices() {
+      if (!("speechSynthesis" in window)) return;
+      function loadVoices() {
+        voices = window.speechSynthesis.getVoices();
+        // pick up to 5 voices
+        const limited = voices.slice(0, 5);
+        voiceSelect.innerHTML = "";
+        limited.forEach((v, i) => {
+          const opt = document.createElement("option");
+          opt.value = v.name;
+          opt.textContent = v.name + " (" + v.lang + ")";
+          voiceSelect.appendChild(opt);
+        });
+        selectedVoice = limited[0] || null;
+      }
+      loadVoices();
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+
+      voiceSelect.addEventListener("change", () => {
+        const name = voiceSelect.value;
+        selectedVoice = voices.find(v => v.name === name) || null;
+      });
+    }
+
+    function playTTS() {
+      if (!currentViewStory || !("speechSynthesis" in window)) return;
+      stopTTS();
+      const utter = new SpeechSynthesisUtterance(currentViewStory.content || "");
+      if (selectedVoice) utter.voice = selectedVoice;
+      utter.rate = 1;
+      utter.pitch = 1;
+      window.speechSynthesis.speak(utter);
+    }
+
+    function stopTTS() {
+      if (!("speechSynthesis" in window)) return;
+      window.speechSynthesis.cancel();
+    }
+
+    ttsPlayBtn.addEventListener("click", playTTS);
+    ttsStopBtn.addEventListener("click", stopTTS);
+
+    // =========================
+    // SEARCH / FILTER EVENTS
+    // =========================
+    searchInputEl.addEventListener("input", renderStories);
+    filterCategoryEl.addEventListener("change", () => {
+      selectedCategoryFilter = filterCategoryEl.value;
+      renderStories();
+    });
+    sortSelectEl.addEventListener("change", renderStories);
+    favoritesOnlyEl.addEventListener("change", renderStories);
+
+    // =========================
+    // CLICK OUTSIDE MODALS
+    // =========================
+    [ownershipModal, storyModal, viewStoryModal].forEach(modal => {
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+          modal.style.display = "none";
+          if (modal === viewStoryModal) stopTTS();
+        }
+      });
+    });
+
+    // =========================
+    // INIT ALL
+    // =========================
+    initCategories();
+    initDarkMode();
+    initFontSize();
+    initTextLayout();
+    initQuotes();
+    initVoices();
+    loadStories();
+  </script>
 </body>
-     </html>
+      </html>
